@@ -9,11 +9,17 @@ import pandas as pd
 import logging
 from src.config import config
 from src.train import TrainModel
+from src.explain.shap_explainer import ModelExplainer
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def main():
+    """
+    Полный пайплайн модели
+
+    :return: Артефакты модели
+    """
     logger.info("=" * 60)
     logger.info("Churn prediction pipeline")
     logger.info("=" * 60)
@@ -24,6 +30,7 @@ def main():
         return
 
     df = pd.read_csv(config.data_path)
+
     logger.info(f"Data loaded: {df.shape[0]} rows and {df.shape[1]} columns")
 
     trainer = TrainModel()
@@ -47,4 +54,10 @@ def main():
     return results
 
 if __name__ == "__main__":
-    main()
+
+    results = main()
+
+    shap_df = ModelExplainer.explain(results["model"], results["X_test"])
+
+    logger.info(shap_df.abs().mean().sort_values(ascending=False).head(10))
+

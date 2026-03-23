@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Any
 import logging
 
 from src.config import config
@@ -11,7 +11,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class DataPreprocessor:
+    """
+    Класс для полной предобработки данных
 
+    Включает:
+        -feature engineering
+        -Масштабирование числовых признаков
+        -Разделение на X и y
+    """
     def __init__(self):
         self.scaler = StandardScaler()
         self.engineering = FeaturesEngineering()
@@ -21,7 +28,15 @@ class DataPreprocessor:
         self.is_fitted = False
 
     def fit_transform(self, df: pd.DataFrame, target_col: str = "Exited") -> Tuple[pd.DataFrame, pd.Series]:
+        """
+        Обучает препроцессор и преобразует данные
 
+        :param df: Исходный DataFrame
+        :param target_col: название целевого переменной
+        :return:
+            X: DataFrame с признаками
+            y: Series с целевой переменной
+        """
         logger.info("=" * 60)
         logger.info(f"Fitting preprocessor")
         logger.info("=" * 60)
@@ -59,7 +74,16 @@ class DataPreprocessor:
         return X, y
 
     def transform(self, df: pd.DataFrame, target_col: str = "Exited", return_target: bool = False) -> pd.DataFrame | Tuple[pd.DataFrame, pd.Series]:
+        """
+        Преобразует данные (без переобучения)
 
+        :param df: Исходный DataFrame
+        :param target_col: Название целевой переменной
+        :param return_target: True если требуется вернуть целевую переменную, иначе False
+        :return:
+            X: DataFrame с признаками, готовыми для предсказания
+            y: (опционально) Series с целевыми переменными
+        """
         if not self.is_fitted:
             raise ValueError("Preprocessor is not fitted. Call fit_transform() first")
 
@@ -90,11 +114,21 @@ class DataPreprocessor:
         return X
 
     def get_features_names(self) -> List[str]:
+        """
+        Возвращает названия признаков
+
+        :return: Список названий признаков
+        """
         if not self.is_fitted:
             raise ValueError("Preprocessor is not fitted. Call fit_transform() first")
         return self.features_names_
 
     def save(self, path: str):
+        """
+        Сохраняет препроцессор в файл
+
+        :param path: Путь для сохранения
+        """
         import joblib
 
         artifacts = {
@@ -108,7 +142,13 @@ class DataPreprocessor:
         logger.info(f"Saved preprocessor to {path}")
 
     @staticmethod
-    def load(path: str):
+    def load(path: str) -> Any:
+        """
+        Загружает препроцессор из файла
+
+        :param path: Путь до препроцессора
+        :return: Готовый препроцессор
+        """
         import joblib
 
         artifacts = joblib.load(path)

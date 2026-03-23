@@ -9,6 +9,31 @@ ROOT_DIR = Path(__file__).parent.parent
 @dataclass
 class Config:
 
+    """
+    Конфигурация проекта для модели предсказания оттока
+
+    Attributes:
+        data_path: Путь к файлу с данными
+        model_path: Путь к файлу с моделью
+        log_path: Путь к файлу с логами
+        scale_pos_weight: Вес для класса ушедших
+        threshold: Порог классификации
+        n_estimators: Кол-во деревьев в XGBoost
+        early_stopping_rounds: Порог остановки
+        max_depth: Максимальная глубина деревьев
+        learning_rate: Скорость обучения
+        random_state: seed для воспроизведения
+        test_size: Размер тестового разбиения
+        verbosity: кол-во итерация для логирования
+        eval_metric: Метрика для обучения
+        numerical_features: Список числовых признаков для масштабирования
+        categorical_features: Список категориальных признаков для one_hot кодирования
+        columns_to_drop: Список признаков для выброса
+        age_bins: Границы возрастных групп
+        age_labels: Метки возрастных групп
+        pre_train_drop_features: Список признаков для выброса перед обучением
+    """
+
     data_path: Path = ROOT_DIR / "data" / "data.csv"
     model_path: Path = ROOT_DIR / "models" / "churn_model_final.pkl"
     log_path: Path = ROOT_DIR / "log"

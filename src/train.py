@@ -17,7 +17,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class TrainModel:
-
+    """
+    Класс для обучения и сохранения модели предсказания оттока
+    """
     def __init__(self):
         self.preprocessor = DataPreprocessor()
         self.model = None
@@ -31,6 +33,14 @@ class TrainModel:
             test_size: float = None,
             return_predictions: bool = False
     ) -> Dict[str, Any]:
+        """
+        Обучает модель на данных
+
+        :param df: Исходный DataFrame
+        :param test_size: Доля тестовой выборки (если None, берется из config)
+        :param return_predictions: Возвращать ли предсказания в результатах
+        :return: Словарь с результатами обучения
+        """
 
         logger.info("=" * 60)
         logger.info('Starting model training')
@@ -77,7 +87,7 @@ class TrainModel:
 
         y_proba = self.model.predict_proba(X_test)[:, 1]
         y_pred = (y_proba >= config.threshold).astype(int)
-
+        print(type(y_proba))
         self.training_metrics = {
             "precision": precision_score(y_test, y_pred),
             "recall": recall_score(y_test, y_pred),
@@ -125,7 +135,14 @@ class TrainModel:
         return results
 
     def predict(self, df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Предсказывает на новых данных
 
+        :param df: Новый DataFrame
+        :return:
+            predictions: Массив предсказаний (0/1)
+            probabilities: Массив вероятностей
+        """
         if not self.is_trained:
             raise ValueError("Model is not trained. Call train() first")
 
@@ -137,12 +154,21 @@ class TrainModel:
         return y_pred, y_proba
 
     def predict_proba(self, df: pd.DataFrame) -> np.ndarray:
+        """
+        Предсказывает вероятности на новых данных
 
+        :param df: Новый DataFrame
+        :return: Массив вероятностей (0/1)
+        """
         _, y_proba = self.predict(df)
 
         return y_proba
 
     def save(self, path: str = None):
+        """
+        Сохраняет модель и все артефакты в файл
+        :param path: Путь сохранения
+        """
 
         if not self.is_trained:
             raise ValueError("Model is not trained. Train model first")
@@ -177,6 +203,11 @@ class TrainModel:
 
     @staticmethod
     def load(path: str) -> Dict[str, Any]:
+        """
+        Загружает модель и артефакты из файла
+        :param path: Путь сохраненной модели
+        :return: Словарь с загруженными артефактами
+        """
         import os
         if not os.path.exists(path):
             raise FileExistsError("Path does not exist")
@@ -185,5 +216,3 @@ class TrainModel:
         logger.info(f"Model loaded from {path}")
 
         return artifacts
-
-

@@ -10,6 +10,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class FeaturesEngineering:
+    """
+    Класс для создания признаков из сырых данных
+    """
 
     def __init__(self):
         self.numerical_features = config.numerical_features
@@ -21,6 +24,13 @@ class FeaturesEngineering:
         self._target = None
 
     def create_features(self, df: pd.DataFrame, target: str = "Exited") -> pd.DataFrame:
+        """
+        Создает признаки из сырых данных
+
+        :param df: Исходный DataFrame
+        :param target: Название целевой переменной
+        :return: DataFrame с обработанными признаками
+        """
         self._target = target
 
         logger.info("=" * 60)
@@ -52,7 +62,7 @@ class FeaturesEngineering:
             )
             logger.info(f"one-hot encoded columns: {categorial_cols_to_drop}")
 
-        df["Has_Balance"] = (df["Balance"] == 0).astype(int)
+        df["Has_Balance"] = (df["Balance"] > 0).astype(int)
         logger.info(f"Created feature: 'Has_Balance'")
 
         exclude_for_names = [self._target, "Age", "Exited", "Complain"]
@@ -65,7 +75,13 @@ class FeaturesEngineering:
         return df
 
     def get_features_names(self, df: Optional[pd.DataFrame] = None, target: str = "Exited") -> List[str]:
+        """
+        Возвращает список имен признаков
 
+        :param df: DataFrame (Опционально, если self.feature_names_ не установленно)
+        :param target: Название целевой переменной
+        :return: Список имен признаков
+        """
         if self.feature_names_ is not None:
             return self.feature_names_
 
@@ -76,7 +92,11 @@ class FeaturesEngineering:
         raise ValueError("Features name not set. Call create_features() or pass df")
 
     def validate_features(self, df: pd.DataFrame) -> bool:
-
+        """
+        Проверяет что DataFrame содержит все необходимые признаки
+        :param df: DataFrame для проверки
+        :return: True если все признаки на месте, иначе False
+        """
         if self.feature_names_ is None:
             raise ValueError("Call create_features() first")
 
