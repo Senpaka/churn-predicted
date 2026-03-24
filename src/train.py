@@ -59,6 +59,7 @@ class TrainModel:
         )
         logger.info(f"Training data type: {type(df_train)}")
         logger.info(f"Test data type: {type(df_test)}")
+
         X_train, y_train = self.preprocessor.fit_transform(df_train)
         X_test, y_test = self.preprocessor.transform(df_test, return_target=True)
 
@@ -87,7 +88,7 @@ class TrainModel:
 
         y_proba = self.model.predict_proba(X_test)[:, 1]
         y_pred = (y_proba >= config.threshold).astype(int)
-        print(type(y_proba))
+
         self.training_metrics = {
             "precision": precision_score(y_test, y_pred),
             "recall": recall_score(y_test, y_pred),
@@ -123,7 +124,7 @@ class TrainModel:
         results = {
             "model": self.model,
             "preprocessor": self.preprocessor,
-            "metrix": self.training_metrics,
+            "metrics": self.training_metrics,
             "X_test": X_test,
             "y_test": y_test,
         }
@@ -178,7 +179,7 @@ class TrainModel:
         artifacts = {
             "model": self.model,
             "preprocessor": self.preprocessor,
-            "metrix": self.training_metrics,
+            "metrics": self.training_metrics,
             "config": {
                 "scale_pos_weight": config.scale_pos_weight,
                 "n_estimators": config.n_estimators,

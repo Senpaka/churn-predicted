@@ -41,7 +41,7 @@ class DataPreprocessor:
         logger.info(f"Fitting preprocessor")
         logger.info("=" * 60)
 
-        df_processed = self.engineering.create_features(df, target_col)
+        df_processed = self.engineering.create_features(df)
 
         y = df_processed[target_col]
         X = df_processed.drop([target_col] + self.columns_to_drop, axis=1).copy()
@@ -91,7 +91,7 @@ class DataPreprocessor:
         logger.info(f"Transforming data")
         logger.info("=" * 60)
 
-        df_processed = self.engineering.create_features(df, "Exited")
+        df_processed = self.engineering.create_features(df)
 
         X = df_processed[self.features_names_].copy()
 
@@ -111,6 +111,7 @@ class DataPreprocessor:
 
         if return_target:
             return X, df_processed[target_col]
+
         return X
 
     def get_features_names(self) -> List[str]:

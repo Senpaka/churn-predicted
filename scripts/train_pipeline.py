@@ -43,12 +43,12 @@ def main():
     logger.info("=" * 60)
     logger.info(f"Model saved to {config.model_path}")
     logger.info("=" * 60)
-    logger.info("Final metrix:")
+    logger.info("Final metrics:")
     logger.info("=" * 60)
-    logger.info(f"recall: {results['metrix']['recall']:.4f}")
-    logger.info(f"precision: {results['metrix']['precision']:.4f}")
-    logger.info(f"f1-score: {results['metrix']['f1']:.4f}")
-    logger.info(f"accuracy: {results['metrix']['accuracy']:.4f}")
+    logger.info(f"recall: {results['metrics']['recall']:.4f}")
+    logger.info(f"precision: {results['metrics']['precision']:.4f}")
+    logger.info(f"f1-score: {results['metrics']['f1']:.4f}")
+    logger.info(f"accuracy: {results['metrics']['accuracy']:.4f}")
     logger.info("=" * 60)
 
     return results
@@ -60,4 +60,5 @@ if __name__ == "__main__":
     shap_df = ModelExplainer.explain(results["model"], results["X_test"])
 
     logger.info(shap_df.abs().mean().sort_values(ascending=False).head(10))
+    logger.info(results["preprocessor"].features_names_)
 

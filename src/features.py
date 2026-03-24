@@ -21,9 +21,8 @@ class FeaturesEngineering:
         self.age_bins = config.age_bins
         self.age_labels = config.age_labels
         self.feature_names_ = None
-        self._target = None
 
-    def create_features(self, df: pd.DataFrame, target: str = "Exited") -> pd.DataFrame:
+    def create_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Создает признаки из сырых данных
 
@@ -31,7 +30,6 @@ class FeaturesEngineering:
         :param target: Название целевой переменной
         :return: DataFrame с обработанными признаками
         """
-        self._target = target
 
         logger.info("=" * 60)
         logger.info(f"Start creating features")
@@ -53,6 +51,7 @@ class FeaturesEngineering:
         logger.info(f"Created feature: 'Age_Group'")
 
         categorial_cols_to_drop = [col for col in self.categorical_features if col in df.columns]
+
         if categorial_cols_to_drop:
             df = pd.get_dummies(
                 df,
@@ -60,12 +59,19 @@ class FeaturesEngineering:
                 drop_first=True,
                 dtype=int
             )
+
+            for col in self.feature_names_:
+                if col not in df.columns:
+                    df[col] = 0
+
+            df = df[self.feature_names_]
+
             logger.info(f"one-hot encoded columns: {categorial_cols_to_drop}")
 
         df["Has_Balance"] = (df["Balance"] > 0).astype(int)
         logger.info(f"Created feature: 'Has_Balance'")
 
-        exclude_for_names = [self._target, "Age", "Exited", "Complain"]
+        exclude_for_names = ["Age", "Exited", "Complain"]
         if "Geography_Readable" in df.columns:
             df = df.drop("Geography_Readable", axis=1)
 
