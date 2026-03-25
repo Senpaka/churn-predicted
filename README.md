@@ -2,6 +2,11 @@
 
 Модель для предсказания оттока клиентов банка.
 
+[![Python 3.10+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.135+-green.svg)](https://fastapi.tiangolo.com/)
+[![XGBoost](https://img.shields.io/badge/XGBoost-2.1.4+-orange.svg)](https://xgboost.readthedocs.io/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 ## 📊 Метрики
 
 | Метрика   | Значение  |
@@ -50,6 +55,18 @@
 | **Gender_Male**     | 0.288431      | Мужчины немного чаще уходят                               |
 
 
+## Готовая API
+
+### Эндпоинты
+
+| Метод  | Эндпоинт               | Описание                             |
+|:-------|:-----------------------|:-------------------------------------|
+| GET    | `/`                    | Информация о сервисе                 |
+| GET    | `/health`              | Проверка работоспособности           |
+| POST   | `/prediction`          | Предсказание для одного клиента      |
+| POST   | `/prediction_batch`    | Предсказание для нескольких клиентов |
+| POST   | `/predict_proba`       | Только вероятность оттока            |
+| POST   | `/prediction_from_csv` | Предсказание из CSV файла            |
 
 
 
@@ -57,8 +74,29 @@
 
 ### Установка
 
+#### 1. Клонирование репозитория
 ```bash
-cd <project_directory>
-pip install -r requirements.txt
-python scripts/train_pipeline.py
+ git clone https://github.com/yourusername/churn-prediction.git
+ cd churn-prediction
 ```
+#### 2. Установка зависимостей
+```bash
+ #Создание виртуального окружения
+ python -m venv .venv
+ source .venv/bin/activate # linux/mac
+ # .venv\Scripts\activate   # Windows
+
+ # Установка зависимостей
+ pip install -r requirements.txt
+```
+
+#### 3. Обучение модели
+```bash
+ python scripts/train_pipeline.py
+```
+
+#### 4. Запуск API
+```bash
+ uvicorn api.app:app --reload --host 0.0.0.0 --port 8000
+```
+
