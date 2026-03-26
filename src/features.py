@@ -60,11 +60,12 @@ class FeaturesEngineering:
                 dtype=int
             )
 
-            for col in self.feature_names_:
-                if col not in df.columns:
-                    df[col] = 0
+            if self.feature_names_ is not None:
+                for col in self.feature_names_:
+                    if col not in df.columns:
+                        df[col] = 0
 
-            df = df[self.feature_names_]
+                df = df[self.feature_names_]
 
             logger.info(f"one-hot encoded columns: {categorial_cols_to_drop}")
 

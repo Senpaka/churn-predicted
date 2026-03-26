@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score, confusion_matrix
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, StratifiedKFold, cross_validate
 from typing import List, Tuple, Dict, Optional, Any
 
 from datetime import datetime as dt
@@ -31,7 +31,8 @@ class TrainModel:
             self,
             df: pd.DataFrame,
             test_size: float = None,
-            return_predictions: bool = False
+            return_predictions: bool = False,
+            cv_folds: int = 5
     ) -> Dict[str, Any]:
         """
         Обучает модель на данных
@@ -57,13 +58,66 @@ class TrainModel:
             random_state=config.random_state,
             stratify=df['Exited']
         )
+
+        df_test, df_validation = train_test_split(
+            df_test,
+            test_size=0.5,
+            random_state=config.random_state,
+            stratify=df_test['Exited']
+        )
+
         logger.info(f"Training data type: {type(df_train)}")
         logger.info(f"Test data type: {type(df_test)}")
 
         X_train, y_train = self.preprocessor.fit_transform(df_train)
+        X_validation, y_validation = self.preprocessor.transform(df_validation, return_target=True)
         X_test, y_test = self.preprocessor.transform(df_test, return_target=True)
 
         logger.info(f"Train size: {X_train.shape}, Test size: {X_test.shape}")
+
+        skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=config.random_state)
+        cv_metrics_list = []
+
+        X_train_np = X_train.values
+        y_train_np = y_train.values
+
+        for fold, (train_index, validation_index) in enumerate(skf.split(X_train_np, y_train_np)):
+
+            X_train_fold, X_validation_fold = X_train_np[train_index], X_train_np[validation_index]
+            y_train_fold, y_validation_fold = y_train_np[train_index], y_train_np[validation_index]
+
+            fold_model = XGBClassifier(
+                scale_pos_weight=config.scale_pos_weight,
+                n_estimators=config.n_estimators,
+                learning_rate=config.learning_rate,
+                max_depth=config.max_depth,
+                random_state=config.random_state,
+                verbosity=config.verbosity,
+                eval_metric=config.eval_metric,
+                early_stopping_rounds=config.early_stopping_rounds,
+            )
+
+            fold_model.fit(
+                X_train_fold, y_train_fold,
+                eval_set=[(X_validation_fold, y_validation_fold)],
+                verbose=False
+            )
+
+            y_prediction_fold = (fold_model.predict_proba(X_validation_fold)[:, 1] >= config.threshold).astype(int)
+
+            cv_metrics_list.append(
+                {
+                    "recall": recall_score(y_validation_fold, y_prediction_fold),
+                    "precision": precision_score(y_validation_fold, y_prediction_fold),
+                    "f1": f1_score(y_validation_fold, y_prediction_fold),
+                    "accuracy": accuracy_score(y_validation_fold, y_prediction_fold)
+
+                }
+            )
+            logger.info(f"Fold {fold} complete. Best iteration: {fold_model.best_iteration}")
+
+        cv_result = pd.DataFrame(cv_metrics_list).agg(["mean", "std"]).to_dict()
+
 
         logger.info("=" * 60)
         logger.info("Training XGBoost model...")
@@ -82,7 +136,7 @@ class TrainModel:
 
         self.model.fit(
             X_train, y_train,
-            eval_set=[(X_test, y_test)],
+            eval_set=[(X_validation, y_validation)],
             verbose=False,
         )
 
@@ -125,6 +179,7 @@ class TrainModel:
             "model": self.model,
             "preprocessor": self.preprocessor,
             "metrics": self.training_metrics,
+            "cv_metrics": cv_result,
             "X_test": X_test,
             "y_test": y_test,
         }

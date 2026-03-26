@@ -34,20 +34,32 @@ class Config:
         pre_train_drop_features: Список признаков для выброса перед обучением
     """
 
+
+    """
+    INFO:src.evaluation.optimizer:  {'learning_rate': 0.01, 'max_depth': 5, 'n_estimators': 100, 'reg_alpha': 0.5, 'reg_lambda': 0.2, 'scale_pos_weight': 5.8575, 'subsample': 1.0} -> recall: 0.8914 ± 0.0183
+INFO:src.evaluation.optimizer:  {'learning_rate': 0.01, 'max_depth': 5, 'n_estimators': 100, 'reg_alpha': 0.5, 'reg_lambda': 0.5, 'scale_pos_weight': 5.8575, 'subsample': 1.0} -> recall: 0.8914 ± 0.0183
+INFO:src.evaluation.optimizer:  {'learning_rate': 0.01, 'max_depth': 5, 'n_estimators': 100, 'reg_alpha': 0.5, 'reg_lambda': 0.8, 'scale_pos_weight': 5.8575, 'subsample': 1.0} -> recall: 0.8914 ± 0.0183
+INFO:src.evaluation.optimizer:  {'learning_rate': 0.01, 'max_depth': 5, 'n_estimators': 100, 'reg_alpha': 0.6, 'reg_lambda': 0.1, 'scale_pos_weight': 5.8575, 'subsample': 1.0} -> recall: 0.8914 ± 0.0183
+INFO:src.evaluation.optimizer:  {'learning_rate': 0.01, 'max_depth': 5, 'n_estimators': 100, 'reg_alpha': 0.6, 'reg_lambda': 0.2, 'scale_pos_weight': 5.8575, 'subsample': 1.0} -> recall: 0.8914 ± 0.0183
+"""
+
     data_path: Path = ROOT_DIR / "data" / "data.csv"
     model_path: Path = ROOT_DIR / "models" / "churn_model_final.pkl"
     log_path: Path = ROOT_DIR / "log"
 
-    scale_pos_weight: float = 3.9051667756703727
-    threshold: float = 0.4
-    n_estimators: int = 300
+    scale_pos_weight: float = 5.8575
+    threshold: float = 0.585
+    n_estimators: int = 100
     early_stopping_rounds: int = 20
-    max_depth: int = 6
-    learning_rate: float = 0.1
+    max_depth: int = 5
+    learning_rate: float = 0.01
     random_state: int = 42
     test_size: float = 0.25
     verbosity: int = 0
     eval_metric: str = 'logloss'
+    reg_alpha: float = 0.5
+    reg_lambda: float = 0.2
+    subsample: float = 1.0
 
     numerical_features: List[str] = field(default_factory=lambda: [
         'CreditScore', 'Balance', 'EstimatedSalary',
