@@ -1,6 +1,5 @@
 
 import sys
-import os
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -34,7 +33,7 @@ def main():
     logger.info(f"Data loaded: {df.shape[0]} rows and {df.shape[1]} columns")
 
     trainer = TrainModel()
-    results = trainer.train(df)
+    results = trainer.train(df, return_predictions=True)
 
     trainer.save()
 
@@ -57,8 +56,21 @@ if __name__ == "__main__":
 
     results = main()
 
+    logger.info("Cross validation metrics:")
+    logger.info("=" * 30)
+    logger.info(f"{'Metric':<12} | {'Mean':>8} | {'Std':>8}")
+    logger.info("-" * 30)
+    cv_metrics = results["cv_metrics"]
+    for metric, stats in cv_metrics.items():
+        mean = stats["mean"]
+        std = stats["std"]
+        logger.info(f"{metric:<12} | {mean:>8.4f} | {std:>8.4f}")
+    logger.info("=" * 30)
+
     shap_df = ModelExplainer.explain(results["model"], results["X_test"])
 
-    logger.info(shap_df.abs().mean().sort_values(ascending=False).head(10))
-    logger.info(results["preprocessor"].features_names_)
+    logger.info(f"\n{shap_df.abs().mean().sort_values(ascending=False).head(10)}")
+
+
+
 

@@ -91,6 +91,9 @@ class DataPreprocessor:
         logger.info(f"Transforming data")
         logger.info("=" * 60)
 
+        if return_target:
+            y = df[target_col]
+
         df_processed = self.engineering.create_features(df)
 
         X = df_processed[self.features_names_].copy()
@@ -110,7 +113,7 @@ class DataPreprocessor:
         logger.info(f"Transform data shape: {X.shape}")
 
         if return_target:
-            return X, df_processed[target_col]
+            return X, y
 
         return X
 
